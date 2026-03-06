@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Agente IA de Trading
 
-**Feature Branch**: `001-ai-agent`  
+**Feature Branch**: `005-ai-agent`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Agente IA multi-proveedor con estrategias predefinidas"
@@ -185,3 +185,4 @@ Como usuario, quiero ver por qué el agente tomó una decisión y recibir notifi
 
 - **Key events to log**: agent_enabled, agent_disabled, provider_changed, strategy_changed, decision_generated, decision_degraded_to_hold, decision_sent_to_execution, provider_timeout.
 - **Log level**: INFO para eventos normales, WARNING para degradación/fallback, ERROR para fallos de infraestructura.
+

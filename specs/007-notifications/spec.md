@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Notificaciones y Alertas
 
-**Feature Branch**: `001-notifications`  
+**Feature Branch**: `007-notifications`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Notificaciones push por eventos críticos de trading y suscripción"
@@ -212,3 +212,4 @@ Como sistema, quiero registrar estado de envío de cada notificación para audit
 
 - **Key events to log**: token_registered, preference_updated, event_created, event_deduplicated, notification_sent, notification_failed, token_invalidated.
 - **Log level**: INFO para flujo normal, WARNING para degradaciones, ERROR para fallos no recuperables.
+
