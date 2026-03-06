@@ -1,4 +1,4 @@
-# Quickstart - 001-auth
+# Quickstart - 002-auth
 
 ## Goal
 
@@ -44,3 +44,5 @@ Validate auth flows end-to-end in local dev.
 - Invalid credentials -> 401
 - Expired/invalid refresh -> 401
 - Excessive login attempts -> 429
+
+

@@ -1,4 +1,4 @@
-# Research - 001-auth
+# Research - 002-auth
 
 ## Decision 1: Session Model
 
@@ -28,3 +28,5 @@
 - Rationale: Required for incident response and compliance with constitution.
 - Alternatives considered:
   - Log-only observability: rejected due to weaker queryability and retention control.
+
+

@@ -1,4 +1,4 @@
-# Data Model - 001-auth
+# Data Model - 002-auth
 
 ## User
 
@@ -46,3 +46,5 @@ Constraints:
 Constraints:
 - created_at indexed
 - metadata must not contain secrets
+
+

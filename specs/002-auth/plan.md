@@ -1,7 +1,7 @@
 # Implementation Plan: TRDIA - Auth Feature
 
-**Branch**: `001-auth` | **Date**: 2026-03-06 | **Spec**: `specs/001-auth/spec.md`
-**Input**: Feature specification from `/specs/001-auth/spec.md`
+**Branch**: `002-auth` | **Date**: 2026-03-06 | **Spec**: `specs/002-auth/spec.md`
+**Input**: Feature specification from `/specs/002-auth/spec.md`
 
 ## Summary
 
@@ -25,7 +25,7 @@ Implementar autenticación segura para TRDIA con tres flujos de acceso (`email/p
 
 **Verify compliance with TRDIA Constitution (.specify/memory/constitution.md):**
 
-- [x] **Principle I (Spec-Driven)**: Spec `specs/001-auth/spec.md` completa antes de código
+- [x] **Principle I (Spec-Driven)**: Spec `specs/002-auth/spec.md` completa antes de código
 - [x] **Principle II (TDD)**: Plan de tests definido (unit, contract, integration) previo a implementación
 - [x] **Principle III (Security-First)**:
   - [x] No credentials in code/logs
@@ -45,7 +45,7 @@ Implementar autenticación segura para TRDIA con tres flujos de acceso (`email/p
 ### Documentation (this feature)
 
 ```text
-specs/001-auth/
+specs/002-auth/
 ├── plan.md
 ├── research.md
 ├── data-model.md
@@ -122,3 +122,5 @@ Resultado esperado para `/speckit.tasks`:
 ## Complexity Tracking
 
 No constitutional violations detected.
+
+

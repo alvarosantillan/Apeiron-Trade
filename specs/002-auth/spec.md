@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Autenticacion y Usuarios
 
-**Feature Branch**: `001-auth`  
+**Feature Branch**: `002-auth`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Especificacion de autenticacion y usuarios para TRDIA"
@@ -179,3 +179,5 @@ Como usuario autenticado, quiero consultar mi perfil y plan actual para entender
 
 - **Key events to log**: register_attempt, register_success, login_success, login_failed, oauth_login_success, refresh_success, refresh_failed, logout_success, revoke_all_sessions.
 - **Log level**: INFO para flujo normal; WARNING para eventos sospechosos; ERROR para excepciones internas.
+
+
