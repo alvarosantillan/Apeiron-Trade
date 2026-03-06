@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Dashboard e Historial de Operaciones
 
-**Feature Branch**: `001-dashboard-history`  
+**Feature Branch**: `008-dashboard-history`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Resumen operativo y trazabilidad histórica"
@@ -212,3 +212,4 @@ Como usuario, quiero indicadores de rendimiento recientes para evaluar si manten
 
 - **Key events to log**: dashboard_loaded, history_queried, trade_detail_viewed, history_filter_applied, query_failed.
 - **Log level**: INFO para uso normal, WARNING para respuestas degradadas, ERROR para fallos de backend.
+

@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Suscripciones y Pagos (MercadoPago)
 
-**Feature Branch**: `001-subscriptions`  
+**Feature Branch**: `004-subscriptions`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Planes Free/Plus/Premium con cobro recurrente por MercadoPago"
@@ -188,3 +188,4 @@ Como administrador, quiero configurar credenciales y planes de MercadoPago via e
 
 - **Key events to log**: checkout_created, webhook_received, webhook_validated, plan_updated, payment_recorded, subscription_blocked.
 - **Log level**: INFO para eventos esperados; WARNING para anomalías; ERROR para fallos internos.
+
