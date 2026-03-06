@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Ejecucion de Trading Spot
 
-**Feature Branch**: `001-trading-execution`  
+**Feature Branch**: `006-trading-execution`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Ejecucion real y simulada con validacion estricta"
@@ -216,3 +216,4 @@ Como usuario, quiero notificación y trazabilidad de cada operación para entend
 
 - **Key events to log**: trade_requested, trade_validated, trade_blocked, trade_sent_to_exchange, trade_executed, trade_failed, trade_simulated, notification_sent.
 - **Log level**: INFO/WARNING/ERROR según severidad.
+
