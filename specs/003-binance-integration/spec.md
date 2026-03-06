@@ -1,6 +1,6 @@
 # Feature Specification: TRDIA - Integracion Binance Spot
 
-**Feature Branch**: `001-binance-integration`  
+**Feature Branch**: `003-binance-integration`  
 **Created**: 2026-03-06  
 **Status**: Draft  
 **Input**: User description: "Integracion Binance Spot para TRDIA"
@@ -188,3 +188,4 @@ Como usuario, quiero recibir notificaciones cada vez que se ejecuta (o falla) un
 
 - **Key events to log**: credential_saved, credential_verified, trade_requested, trade_executed, trade_blocked, trade_failed, simulation_executed.
 - **Log level**: INFO para eventos normales, WARNING para bloqueos y validaciones fallidas, ERROR para excepciones internas o exchange.
+
