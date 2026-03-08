@@ -22,3 +22,7 @@ def create_access_token(user_id: str, email: str) -> str:
 
 def create_refresh_token(user_id: str) -> str:
     return _encode({"sub": user_id, "jti": str(uuid4()), "type": "refresh"}, timedelta(days=REFRESH_TTL_DAYS))
+
+
+def decode_token(token: str) -> dict:
+    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

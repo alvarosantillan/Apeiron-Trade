@@ -32,3 +32,7 @@ class GoogleOAuthRequest(BaseModel):
 
 class FacebookOAuthRequest(BaseModel):
     accessToken: str
+
+
+class LogoutRequest(BaseModel):
+    refreshToken: str

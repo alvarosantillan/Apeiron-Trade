@@ -1,17 +1,20 @@
 from fastapi import APIRouter, HTTPException, status
-from jose import JWTError, jwt
+from jose import JWTError
 
 from schemas.auth.schemas import (
     FacebookOAuthRequest,
     GoogleOAuthRequest,
     LoginRequest,
+    LogoutRequest,
     RefreshRequest,
     RegisterRequest,
     RegisterResponse,
     TokenPairResponse,
 )
+from services.auth.login_protection import login_protection
 from services.auth.oauth_user_service import OAuthTokenError, login_with_facebook, login_with_google
-from services.auth.token_service import ALGORITHM, SECRET_KEY, create_access_token, create_refresh_token
+from services.auth.session_service import create_session, is_valid_session, revoke_all_sessions, revoke_session
+from services.auth.token_service import create_access_token, create_refresh_token, decode_token
 from services.auth.user_store import store
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
@@ -28,13 +31,19 @@ def register(payload: RegisterRequest) -> RegisterResponse:
 
 @router.post("/login", response_model=TokenPairResponse)
 def login(payload: LoginRequest) -> TokenPairResponse:
+    if not login_protection.can_attempt(payload.email):
+        raise HTTPException(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="too many failed attempts")
+
     user = store.authenticate(payload.email, payload.password)
     if not user:
+        login_protection.register_failure(payload.email)
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid credentials")
+
+    login_protection.register_success(payload.email)
 
     access_token = create_access_token(user["id"], user["email"])
     refresh_token = create_refresh_token(user["id"])
-    store.save_refresh_token(user["id"], refresh_token)
+    create_session(user["id"], refresh_token)
 
     return TokenPairResponse(accessToken=access_token, refreshToken=refresh_token)
 
@@ -42,19 +51,20 @@ def login(payload: LoginRequest) -> TokenPairResponse:
 @router.post("/refresh", response_model=TokenPairResponse)
 def refresh(payload: RefreshRequest) -> TokenPairResponse:
     try:
-        decoded = jwt.decode(payload.refreshToken, SECRET_KEY, algorithms=[ALGORITHM])
+        decoded = decode_token(payload.refreshToken)
         user_id = decoded["sub"]
         if decoded.get("type") != "refresh":
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token type")
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid refresh token")
 
-    if not store.validate_refresh_token(user_id, payload.refreshToken):
+    if not is_valid_session(user_id, payload.refreshToken):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="refresh token revoked")
 
+    revoke_session(user_id, payload.refreshToken)
     access_token = create_access_token(user_id, "")
     refresh_token = create_refresh_token(user_id)
-    store.save_refresh_token(user_id, refresh_token)
+    create_session(user_id, refresh_token)
     return TokenPairResponse(accessToken=access_token, refreshToken=refresh_token)
 
 
@@ -74,3 +84,29 @@ def oauth_facebook(payload: FacebookOAuthRequest) -> TokenPairResponse:
     except OAuthTokenError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid oauth token")
     return TokenPairResponse(**tokens)
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(payload: LogoutRequest) -> None:
+    try:
+        decoded = decode_token(payload.refreshToken)
+        user_id = decoded["sub"]
+        if decoded.get("type") != "refresh":
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token type")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid refresh token")
+
+    revoke_session(user_id, payload.refreshToken)
+
+
+@router.post("/logout-all", status_code=status.HTTP_204_NO_CONTENT)
+def logout_all(payload: LogoutRequest) -> None:
+    try:
+        decoded = decode_token(payload.refreshToken)
+        user_id = decoded["sub"]
+        if decoded.get("type") != "refresh":
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid token type")
+    except JWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid refresh token")
+
+    revoke_all_sessions(user_id)
