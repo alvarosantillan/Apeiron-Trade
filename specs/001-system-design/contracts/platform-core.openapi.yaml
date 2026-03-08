@@ -1,0 +1,106 @@
+openapi: 3.0.3
+info:
+  title: TRDIA Platform Core API
+  version: 1.0.0
+  description: Core platform contract for bootstrap capabilities and system-level health.
+servers:
+  - url: https://api.trdia.local
+paths:
+  /v1/platform/health:
+    get:
+      summary: Platform health status
+      operationId: getPlatformHealth
+      tags: [Platform]
+      responses:
+        '200':
+          description: Platform health returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /v1/platform/capabilities:
+    get:
+      summary: List enabled capabilities for authenticated user
+      operationId: getPlatformCapabilities
+      tags: [Platform]
+      responses:
+        '200':
+          description: Capability matrix returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapabilitiesResponse'
+  /v1/platform/profile-summary:
+    get:
+      summary: Get cross-domain summary (plan, counters, bot state)
+      operationId: getProfileSummary
+      tags: [Platform]
+      responses:
+        '200':
+          description: Profile summary returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSummaryResponse'
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [OK, DEGRADED, DOWN]
+        timestamp:
+          type: string
+          format: date-time
+        services:
+          type: object
+          additionalProperties:
+            type: string
+    CapabilitiesResponse:
+      type: object
+      required: [planCode, executionModes, aiProviders, tradingModes]
+      properties:
+        planCode:
+          type: string
+          enum: [FREE, PLUS, PREMIUM]
+        executionModes:
+          type: array
+          items:
+            type: string
+            enum: [MANUAL, AUTOMATIC]
+        aiProviders:
+          type: array
+          items:
+            type: string
+            enum: [OPENAI, GROQ, DEEPSEEK, GEMINI]
+        tradingModes:
+          type: array
+          items:
+            type: string
+            enum: [REAL, PAPER]
+    ProfileSummaryResponse:
+      type: object
+      required: [userId, planCode, planStatus, operationsUsed, botStatus, updatedAt]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        planCode:
+          type: string
+          enum: [FREE, PLUS, PREMIUM]
+        planStatus:
+          type: string
+          enum: [ACTIVE, CANCELLED, PAST_DUE]
+        operationsUsed:
+          type: integer
+        operationsLimit:
+          type: integer
+          nullable: true
+        botStatus:
+          type: string
+          enum: [ACTIVE, PAUSED, INACTIVE]
+        updatedAt:
+          type: string
+          format: date-time
