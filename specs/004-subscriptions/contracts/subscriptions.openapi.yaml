@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: TRDIA Subscriptions API
+  version: 1.0.0
+paths:
+  /api/v1/subscriptions/checkout:
+    post:
+      summary: Start subscription checkout
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_code]
+              properties:
+                plan_code:
+                  type: string
+                  enum: [plus, premium]
+      responses:
+        '200':
+          description: Checkout initialized
+        '400':
+          description: Invalid plan
+        '401':
+          description: Unauthorized
+  /api/v1/subscriptions/status:
+    get:
+      summary: Get current subscription status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current subscription data
+  /api/v1/subscriptions/upgrade:
+    post:
+      summary: Upgrade subscription plan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_code]
+              properties:
+                plan_code:
+                  type: string
+                  enum: [plus, premium]
+      responses:
+        '200':
+          description: Upgrade requested
+  /api/v1/subscriptions/downgrade:
+    post:
+      summary: Schedule downgrade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [plan_code]
+              properties:
+                plan_code:
+                  type: string
+                  enum: [free, plus]
+      responses:
+        '200':
+          description: Downgrade scheduled
+  /api/v1/subscriptions/cancel:
+    post:
+      summary: Cancel subscription at period end
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cancellation scheduled
+  /api/v1/webhooks/mercadopago:
+    post:
+      summary: MercadoPago webhook receiver
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Event processed
+        '202':
+          description: Duplicate event ignored
+        '401':
+          description: Invalid signature
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
