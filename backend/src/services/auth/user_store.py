@@ -57,5 +57,11 @@ class InMemoryUserStore:
         self._users_by_oauth[key] = user
         return user
 
+    def get_user_by_id(self, user_id: str) -> dict | None:
+        for user in self._users_by_email.values():
+            if user["id"] == user_id:
+                return user
+        return None
+
 
 store = InMemoryUserStore()
