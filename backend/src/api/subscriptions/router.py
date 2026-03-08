@@ -49,7 +49,7 @@ def process_webhook(payload: WebhookRequest, x_signature: str | None = Header(de
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid external reference")
 
     mapped_status = map_payment_event_to_subscription_status(payload.eventType, payload.status)
-    if mapped_status == "active":
+    if mapped_status in {"active", "past_due"}:
         subscription_store.set_status(user_id, plan_code, mapped_status)
 
     idempotency_store.mark_processed(payload.eventId)
