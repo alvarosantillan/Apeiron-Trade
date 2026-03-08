@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Header, HTTPException, status
 
 from schemas.subscriptions.schemas import (
+    CancelRequest,
     CheckoutRequest,
     CheckoutResponse,
     SubscriptionStatusResponse,
+    TransitionRequest,
     WebhookRequest,
 )
 from services.payments.event_idempotency import idempotency_store
@@ -11,6 +13,7 @@ from services.payments.mercadopago_client import mp_client
 from services.payments.webhook_validator import validate_signature
 from services.subscriptions.state_mapper import map_payment_event_to_subscription_status
 from services.subscriptions.store import subscription_store
+from services.subscriptions.transition_service import cancel_subscription, transition_plan
 
 router = APIRouter(prefix="/v1/subscriptions", tags=["subscriptions"])
 
@@ -53,3 +56,18 @@ def process_webhook(payload: WebhookRequest, x_signature: str | None = Header(de
         subscription_store.set_status(user_id, plan_code, mapped_status)
 
     idempotency_store.mark_processed(payload.eventId)
+
+
+@router.post("/transition", response_model=SubscriptionStatusResponse)
+def transition_subscription(payload: TransitionRequest, x_user_id: str = Header(default="demo-user")) -> SubscriptionStatusResponse:
+    try:
+        updated = transition_plan(x_user_id, payload.targetPlanCode)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="invalid target plan")
+    return SubscriptionStatusResponse(**updated)
+
+
+@router.post("/cancel", response_model=SubscriptionStatusResponse)
+def cancel_subscription_endpoint(payload: CancelRequest, x_user_id: str = Header(default="demo-user")) -> SubscriptionStatusResponse:
+    updated = cancel_subscription(x_user_id, payload.cancelAtPeriodEnd)
+    return SubscriptionStatusResponse(**updated)

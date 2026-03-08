@@ -16,7 +16,16 @@ class SubscriptionStatusResponse(BaseModel):
     userId: str
     planCode: str
     status: str
+    cancelAtPeriodEnd: bool = False
     updatedAt: datetime
+
+
+class TransitionRequest(BaseModel):
+    targetPlanCode: str
+
+
+class CancelRequest(BaseModel):
+    cancelAtPeriodEnd: bool = True
 
 
 class WebhookRequest(BaseModel):
