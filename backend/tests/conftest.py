@@ -13,4 +13,5 @@ def test_client() -> TestClient:
 @pytest.fixture(autouse=True)
 def reset_in_memory_store() -> None:
     store._users_by_email.clear()
+    store._users_by_oauth.clear()
     store._refresh_tokens.clear()

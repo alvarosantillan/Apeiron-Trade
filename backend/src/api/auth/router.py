@@ -2,12 +2,15 @@ from fastapi import APIRouter, HTTPException, status
 from jose import JWTError, jwt
 
 from schemas.auth.schemas import (
+    FacebookOAuthRequest,
+    GoogleOAuthRequest,
     LoginRequest,
     RefreshRequest,
     RegisterRequest,
     RegisterResponse,
     TokenPairResponse,
 )
+from services.auth.oauth_user_service import OAuthTokenError, login_with_facebook, login_with_google
 from services.auth.token_service import ALGORITHM, SECRET_KEY, create_access_token, create_refresh_token
 from services.auth.user_store import store
 
@@ -53,3 +56,21 @@ def refresh(payload: RefreshRequest) -> TokenPairResponse:
     refresh_token = create_refresh_token(user_id)
     store.save_refresh_token(user_id, refresh_token)
     return TokenPairResponse(accessToken=access_token, refreshToken=refresh_token)
+
+
+@router.post("/oauth/google", response_model=TokenPairResponse)
+def oauth_google(payload: GoogleOAuthRequest) -> TokenPairResponse:
+    try:
+        tokens = login_with_google(payload.idToken)
+    except OAuthTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid oauth token")
+    return TokenPairResponse(**tokens)
+
+
+@router.post("/oauth/facebook", response_model=TokenPairResponse)
+def oauth_facebook(payload: FacebookOAuthRequest) -> TokenPairResponse:
+    try:
+        tokens = login_with_facebook(payload.accessToken)
+    except OAuthTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="invalid oauth token")
+    return TokenPairResponse(**tokens)

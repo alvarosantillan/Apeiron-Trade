@@ -6,6 +6,7 @@ from services.auth.password_service import hash_password, verify_password
 class InMemoryUserStore:
     def __init__(self) -> None:
         self._users_by_email: dict[str, dict] = {}
+        self._users_by_oauth: dict[str, dict] = {}
         self._refresh_tokens: dict[str, str] = {}
 
     def create_user(self, email: str, password: str) -> dict:
@@ -28,6 +29,20 @@ class InMemoryUserStore:
 
     def validate_refresh_token(self, user_id: str, refresh_token: str) -> bool:
         return self._refresh_tokens.get(user_id) == refresh_token
+
+    def find_or_create_oauth_user(self, provider: str, oauth_id: str, email: str) -> dict:
+        key = f"{provider}:{oauth_id}"
+        existing = self._users_by_oauth.get(key)
+        if existing:
+            return existing
+
+        user = self._users_by_email.get(email)
+        if not user:
+            user = {"id": str(uuid4()), "email": email, "password_hash": None}
+            self._users_by_email[email] = user
+
+        self._users_by_oauth[key] = user
+        return user
 
 
 store = InMemoryUserStore()

@@ -24,3 +24,11 @@ class TokenPairResponse(BaseModel):
 
 class RefreshRequest(BaseModel):
     refreshToken: str
+
+
+class GoogleOAuthRequest(BaseModel):
+    idToken: str
+
+
+class FacebookOAuthRequest(BaseModel):
+    accessToken: str
