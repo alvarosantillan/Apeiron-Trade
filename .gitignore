@@ -16,6 +16,10 @@ htmlcov/
 dist/
 build/
 
+# Node.js artifacts
+node_modules/
+*.tsbuildinfo
+
 # Logs and env
 *.log
 .env*
