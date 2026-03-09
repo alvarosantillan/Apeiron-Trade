@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Build and test artifacts
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# VCS and Docker
+.git/
+Dockerfile*
+.dockerignore
+
+# Dependencies and logs
+node_modules/
+*.log*
+coverage/
+
+# Environment files
+.env*
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp

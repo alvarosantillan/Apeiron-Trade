@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: TRDIA Trading Execution API
+  version: 1.0.0
+  description: API contract for validated Spot trading execution (real and paper).
+servers:
+  - url: https://api.trdia.local
+paths:
+  /v1/trading/executions:
+    post:
+      summary: Validate and create a trading execution request
+      operationId: createTradingExecution
+      tags: [Trading]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExecutionRequest'
+      responses:
+        '201':
+          description: Execution created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+        '400':
+          description: Validation error
+        '403':
+          description: Plan restriction or authorization violation
+        '409':
+          description: Duplicate request or invalid state
+    get:
+      summary: List trading executions for authenticated user
+      operationId: listTradingExecutions
+      tags: [Trading]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: executionType
+          schema:
+            type: string
+            enum: [REAL, PAPER]
+      responses:
+        '200':
+          description: Execution list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExecutionResponse'
+  /v1/trading/executions/{executionId}:
+    get:
+      summary: Get execution status by ID
+      operationId: getTradingExecution
+      tags: [Trading]
+      parameters:
+        - in: path
+          name: executionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Execution details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+        '404':
+          description: Execution not found
+components:
+  schemas:
+    CreateExecutionRequest:
+      type: object
+      required: [requestId, symbol, side, orderType, quantity, isSimulation]
+      properties:
+        requestId:
+          type: string
+          minLength: 8
+        source:
+          type: string
+          enum: [MANUAL, AI_AGENT]
+          default: MANUAL
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        orderType:
+          type: string
+          enum: [MARKET, LIMIT]
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+        limitPrice:
+          type: number
+          exclusiveMinimum: 0
+          nullable: true
+        isSimulation:
+          type: boolean
+    ExecutionResponse:
+      type: object
+      required:
+        [id, requestId, symbol, side, orderType, quantity, executionType, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        requestId:
+          type: string
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        orderType:
+          type: string
+          enum: [MARKET, LIMIT]
+        quantity:
+          type: number
+        limitPrice:
+          type: number
+          nullable: true
+        executionType:
+          type: string
+          enum: [REAL, PAPER]
+        mode:
+          type: string
+          enum: [MANUAL, AUTOMATIC]
+        status:
+          type: string
+          enum:
+            [RECEIVED, VALIDATED, BLOCKED, SUBMITTED, EXECUTED, FAILED, PENDING_RECONCILIATION, CANCELLED]
+        executedPrice:
+          type: number
+          nullable: true
+        executedQty:
+          type: number
+          nullable: true
+        blockedReason:
+          type: string
+          nullable: true
+        failureReason:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
