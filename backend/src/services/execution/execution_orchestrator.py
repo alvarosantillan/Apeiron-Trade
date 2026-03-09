@@ -7,6 +7,8 @@ from services.execution.block_reason_mapper import map_block_reason
 from services.execution.execution_repository import execution_repository
 from services.execution.idempotency_service import idempotency_service
 from services.execution.state_machine import can_transition
+from services.persistence.metrics import persistence_metrics
+from services.persistence.transaction_manager import run_transaction
 from services.risk.balance_validator import has_sufficient_balance
 from services.subscriptions.store import subscription_store
 from services.validation.plan_limit_validator import plan_limit_validator
@@ -82,6 +84,11 @@ def create_execution(user_id: str, payload: dict) -> dict:
         weekly_counter_service.increment_real(user_id, plan_code)
 
     execution["updatedAt"] = datetime.now(timezone.utc)
-    execution_repository.add_execution(user_id, execution)
+    with persistence_metrics.timed("db.query.latency_seconds"):
+        run_transaction(
+            "execution.create",
+            lambda: execution_repository.add_execution(user_id, execution),
+        )
     idempotency_service.save(user_id, payload["requestId"], execution)
+    persistence_metrics.inc("persistence.execution.writes_total")
     return execution

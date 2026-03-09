@@ -1,6 +1,16 @@
+from datetime import datetime
+
 from services.execution.execution_repository import execution_repository
 from services.history.filter_validator import validate_filters
 from services.history.pagination_service import decode_cursor, encode_cursor
+
+
+def _to_dt(value):
+    if hasattr(value, "tzinfo"):
+        return value
+    if isinstance(value, str):
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return value
 
 
 def _to_item(execution: dict) -> dict:
@@ -31,9 +41,9 @@ def list_history(
     items = execution_repository.get_all_executions(user_id)
 
     if parsed_from:
-        items = [x for x in items if x["createdAt"] >= parsed_from]
+        items = [x for x in items if _to_dt(x["createdAt"]) >= parsed_from]
     if parsed_to:
-        items = [x for x in items if x["createdAt"] <= parsed_to]
+        items = [x for x in items if _to_dt(x["createdAt"]) <= parsed_to]
     if status:
         items = [x for x in items if x["status"] == status]
     if is_simulation is not None:

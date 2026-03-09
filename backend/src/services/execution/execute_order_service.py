@@ -43,7 +43,7 @@ def execute_order(user_id: str, payload: dict) -> dict:
                 "quantity": payload["quantity"],
                 "message": "insufficient balance",
             }
-            execution_repository.add(result)
+            execution_repository.add_execution(user_id, result)
             return result
 
         balance_store.set_balance(user_id, current_balance - required)
@@ -57,5 +57,5 @@ def execute_order(user_id: str, payload: dict) -> dict:
         "quantity": payload["quantity"],
         "message": "order processed",
     }
-    execution_repository.add(result)
+    execution_repository.add_execution(user_id, result)
     return result

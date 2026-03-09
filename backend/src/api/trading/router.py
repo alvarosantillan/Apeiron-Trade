@@ -55,7 +55,7 @@ def execute_trade(payload: TradeExecutionRequest, user: dict = Depends(get_curre
 
     try:
         if payload.is_simulation:
-            result = execute_paper_order(payload.model_dump())
+            result = execute_paper_order(user_id, payload.model_dump())
         else:
             result = execute_order(user_id, payload.model_dump())
             if result["status"] == "executed":
@@ -75,6 +75,7 @@ def get_trade_history(
     page_size: int = Query(default=20, ge=1, le=100),
 ) -> TradeHistoryResponse:
     items, total = execution_repository.list(
+        user_id=user["id"],
         is_simulation=is_simulation,
         status=status_filter,
         page=page,

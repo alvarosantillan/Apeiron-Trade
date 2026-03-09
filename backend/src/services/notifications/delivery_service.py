@@ -6,6 +6,8 @@ from services.notifications.priority_policy import should_override_preferences
 from services.notifications.push_provider import push_provider
 from services.notifications.retry_policy import retry_policy_service
 from services.notifications.token_service import notification_token_service
+from services.persistence.metrics import persistence_metrics
+from services.persistence.transaction_manager import run_transaction
 
 
 def dispatch_notification(user_id: str, payload: dict) -> list[dict]:
@@ -38,19 +40,24 @@ def dispatch_notification(user_id: str, payload: dict) -> list[dict]:
             status = transition_status(status, "FAILED")
             break
 
-        item = notification_history_store.add(
-            user_id,
-            {
-                "eventId": payload["eventId"],
-                "category": category,
-                "priority": payload["priority"],
-                "title": payload["title"],
-                "message": payload["message"],
-                "status": status,
-                "referenceId": payload.get("referenceId"),
-                "createdAt": now_utc(),
-            },
-        )
+        with persistence_metrics.timed("db.query.latency_seconds"):
+            item = run_transaction(
+                "notifications.delivery.write",
+                lambda: notification_history_store.add(
+                    user_id,
+                    {
+                        "eventId": payload["eventId"],
+                        "category": category,
+                        "priority": payload["priority"],
+                        "title": payload["title"],
+                        "message": payload["message"],
+                        "status": status,
+                        "referenceId": payload.get("referenceId"),
+                        "createdAt": now_utc(),
+                    },
+                ),
+            )
         deliveries.append(item)
+        persistence_metrics.inc("persistence.notifications.writes_total")
 
     return deliveries

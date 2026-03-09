@@ -12,6 +12,20 @@ venv/
 .coverage
 htmlcov/
 
+# Build artifacts
+dist/
+build/
+
+# Logs and env
+*.log
+.env*
+
+# Editor temp files
+*.tmp
+*.swp
+.vscode/
+.idea/
+
 # OS/editor files
 .DS_Store
 Thumbs.db

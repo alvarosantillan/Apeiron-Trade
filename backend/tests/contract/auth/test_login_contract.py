@@ -18,3 +18,18 @@ def test_login_invalid_credentials_returns_401(test_client):
     )
 
     assert response.status_code == 401
+
+
+def test_refresh_token_remains_valid_across_client_restart(test_client):
+    creds = {"email": "refresh-persist@example.com", "password": "Password123"}
+    test_client.post("/v1/auth/register", json=creds)
+    login_response = test_client.post("/v1/auth/login", json=creds)
+    refresh_token = login_response.json()["refreshToken"]
+
+    restarted = test_client.__class__(test_client.app)
+    refresh_response = restarted.post("/v1/auth/refresh", json={"refreshToken": refresh_token})
+
+    assert refresh_response.status_code == 200
+    body = refresh_response.json()
+    assert isinstance(body.get("accessToken"), str)
+    assert isinstance(body.get("refreshToken"), str)

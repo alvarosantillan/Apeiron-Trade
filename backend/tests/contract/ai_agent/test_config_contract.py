@@ -31,6 +31,11 @@ def test_config_upsert_and_get(test_client):
     assert read.status_code == 200
     assert read.json()["strategyId"] == payload["strategyId"]
 
+    restarted = test_client.__class__(test_client.app)
+    persisted = restarted.get("/v1/ai-agent/config", headers=headers)
+    assert persisted.status_code == 200
+    assert persisted.json()["strategyId"] == payload["strategyId"]
+
 
 def test_free_user_automatic_mode_blocked(test_client):
     headers = _auth_headers(test_client, "ai-free-block@example.com")

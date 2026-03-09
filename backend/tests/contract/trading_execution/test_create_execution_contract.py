@@ -43,3 +43,26 @@ def test_create_execution_returns_201_and_shape(test_client):
     assert body["executionType"] == "REAL"
     assert body["status"] == "EXECUTED"
     assert "id" in body
+
+
+def test_create_execution_replays_same_request_id(test_client):
+    headers, user_id = _auth_headers(test_client, "exec-replay@example.com")
+    subscription_store.set_status(user_id, "plus", "active")
+    _save_credentials(test_client, headers)
+
+    payload = {
+        "requestId": "reqreplay1",
+        "source": "MANUAL",
+        "symbol": "BTCUSDT",
+        "side": "BUY",
+        "orderType": "MARKET",
+        "quantity": 25,
+        "isSimulation": False,
+    }
+
+    first = test_client.post("/v1/trading/executions", json=payload, headers=headers)
+    second = test_client.post("/v1/trading/executions", json=payload, headers=headers)
+
+    assert first.status_code == 201
+    assert second.status_code == 201
+    assert second.json()["id"] == first.json()["id"]
