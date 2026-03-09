@@ -50,3 +50,37 @@ class TradeHistoryResponse(BaseModel):
     page: int
     page_size: int
     total: int
+
+
+class CreateExecutionRequest(BaseModel):
+    requestId: str = Field(min_length=8)
+    source: str = "MANUAL"
+    symbol: str
+    side: str
+    orderType: str
+    quantity: float = Field(gt=0)
+    limitPrice: float | None = None
+    isSimulation: bool
+
+
+class ExecutionResponse(BaseModel):
+    id: str
+    requestId: str
+    symbol: str
+    side: str
+    orderType: str
+    quantity: float
+    limitPrice: float | None = None
+    executionType: str
+    mode: str
+    status: str
+    executedPrice: float | None = None
+    executedQty: float | None = None
+    blockedReason: str | None = None
+    failureReason: str | None = None
+    createdAt: datetime
+    updatedAt: datetime
+
+
+class ExecutionListResponse(BaseModel):
+    items: list[ExecutionResponse]

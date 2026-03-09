@@ -33,5 +33,7 @@ def reset_in_memory_store() -> None:
     credential_store._by_user.clear()
     idempotency_service._seen.clear()
     execution_repository._executions.clear()
+    execution_repository._by_user.clear()
+    execution_repository._by_id.clear()
     balance_store._balance.clear()
     plan_limit_validator._weekly_usage.clear()

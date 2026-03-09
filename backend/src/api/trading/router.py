@@ -4,6 +4,9 @@ from api.middleware.auth_middleware import get_current_user
 from schemas.trading.schemas import (
     BinanceCredentialsRequest,
     BinanceCredentialsStatusResponse,
+    CreateExecutionRequest,
+    ExecutionListResponse,
+    ExecutionResponse,
     TradeHistoryResponse,
     TradeExecutionRequest,
     TradeExecutionResponse,
@@ -12,6 +15,7 @@ from services.binance.credential_service import credential_store
 from services.execution.execute_order_service import ExecutionError, execute_order
 from services.execution.execution_repository import execution_repository
 from services.execution.idempotency_service import idempotency_service
+from services.execution.execution_orchestrator import create_execution
 from services.execution.paper_execution_service import PaperExecutionError, execute_paper_order
 from services.subscriptions.store import subscription_store
 from services.validation.plan_limit_validator import plan_limit_validator
@@ -77,3 +81,33 @@ def get_trade_history(
         page_size=page_size,
     )
     return TradeHistoryResponse(items=items, page=page, page_size=page_size, total=total)
+
+
+@router.post("/executions", response_model=ExecutionResponse, status_code=status.HTTP_201_CREATED)
+def create_trading_execution(payload: CreateExecutionRequest, user: dict = Depends(get_current_user)) -> ExecutionResponse:
+    execution = create_execution(user["id"], payload.model_dump())
+    return ExecutionResponse(**execution)
+
+
+@router.get("/executions", response_model=ExecutionListResponse)
+def list_trading_executions(
+    user: dict = Depends(get_current_user),
+    limit: int = Query(default=20, ge=1, le=100),
+    status_filter: str | None = Query(default=None, alias="status"),
+    execution_type: str | None = Query(default=None, alias="executionType"),
+) -> ExecutionListResponse:
+    items = execution_repository.list_executions(
+        user_id=user["id"],
+        limit=limit,
+        status=status_filter,
+        execution_type=execution_type,
+    )
+    return ExecutionListResponse(items=items)
+
+
+@router.get("/executions/{execution_id}", response_model=ExecutionResponse)
+def get_trading_execution(execution_id: str, user: dict = Depends(get_current_user)) -> ExecutionResponse:
+    execution = execution_repository.get_execution(execution_id)
+    if not execution:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="execution not found")
+    return ExecutionResponse(**execution)

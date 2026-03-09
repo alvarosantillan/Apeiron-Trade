@@ -63,7 +63,16 @@ Expected:
 ## Test Commands (Reference)
 
 ```bash
-pytest backend/tests/unit -k trading_execution
-pytest backend/tests/integration -k trading_execution
-pytest backend/tests/contract -k trading_execution
+python -m pytest tests/contract/trading_execution tests/integration/trading_execution -q
 ```
+
+## Validation Evidence
+
+- Command: `python -m pytest tests/contract/trading_execution tests/integration/trading_execution -q`
+- Result: `7 passed, 1 warning`
+- Scenario mapping:
+	- Scenario 1: `test_create_execution_returns_201_and_shape`, `test_real_execution_success_and_fetch_by_id`
+	- Scenario 2: `test_weekly_limit_exceeded_is_blocked`
+	- Scenario 3: `test_paper_execution_does_not_increment_real_counter`
+	- Scenario 4: `test_same_request_id_replays_same_execution_without_duplicate`
+	- Scenario 5: `test_timeout_goes_to_reconciliation_and_resolves`
