@@ -5,7 +5,12 @@ from main import app
 from services.auth.login_protection import login_protection
 from services.auth.user_store import store
 from services.payments.event_idempotency import idempotency_store
+from services.binance.credential_service import credential_store
+from services.execution.execution_repository import execution_repository
+from services.execution.execute_order_service import balance_store
+from services.execution.idempotency_service import idempotency_service
 from services.subscriptions.store import subscription_store
+from services.validation.plan_limit_validator import plan_limit_validator
 
 
 @pytest.fixture
@@ -21,3 +26,8 @@ def reset_in_memory_store() -> None:
     login_protection._failed_by_email.clear()
     idempotency_store._seen_event_ids.clear()
     subscription_store._status_by_user.clear()
+    credential_store._by_user.clear()
+    idempotency_service._seen.clear()
+    execution_repository._executions.clear()
+    balance_store._balance.clear()
+    plan_limit_validator._weekly_usage.clear()

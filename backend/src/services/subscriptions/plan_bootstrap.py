@@ -9,5 +9,8 @@ class PlanBootstrapService:
     def list_plan_codes(self) -> list[str]:
         return list(self._plans.keys())
 
+    def get_weekly_limit(self, plan_code: str) -> int | None:
+        return self._plans.get(plan_code, self._plans["free"])["weeklyLimit"]
+
 
 plan_bootstrap_service = PlanBootstrapService()
