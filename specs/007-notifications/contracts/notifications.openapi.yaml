@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: TRDIA Notifications API
+  version: 1.0.0
+  description: API contract for device tokens, preferences, and notification history.
+servers:
+  - url: https://api.trdia.local
+paths:
+  /v1/notifications/device-tokens:
+    post:
+      summary: Register or update a push device token
+      operationId: upsertDeviceToken
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertDeviceTokenRequest'
+      responses:
+        '200':
+          description: Device token stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceTokenResponse'
+    get:
+      summary: List active device tokens for authenticated user
+      operationId: listDeviceTokens
+      tags: [Notifications]
+      responses:
+        '200':
+          description: Device tokens returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DeviceTokenResponse'
+  /v1/notifications/preferences:
+    get:
+      summary: Get notification preferences by category
+      operationId: getNotificationPreferences
+      tags: [Notifications]
+      responses:
+        '200':
+          description: Preferences returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Preference'
+    put:
+      summary: Update notification preferences
+      operationId: updateNotificationPreferences
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PreferenceUpdate'
+      responses:
+        '200':
+          description: Preferences updated
+  /v1/notifications/history:
+    get:
+      summary: List notification history for authenticated user
+      operationId: listNotificationHistory
+      tags: [Notifications]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: category
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification history returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NotificationHistoryItem'
+components:
+  schemas:
+    UpsertDeviceTokenRequest:
+      type: object
+      required: [deviceId, platform, pushToken]
+      properties:
+        deviceId:
+          type: string
+        platform:
+          type: string
+          enum: [IOS, ANDROID]
+        pushToken:
+          type: string
+          minLength: 16
+    DeviceTokenResponse:
+      type: object
+      required: [id, deviceId, platform, isActive, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        deviceId:
+          type: string
+        platform:
+          type: string
+        isActive:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    Preference:
+      type: object
+      required: [category, enabled]
+      properties:
+        category:
+          type: string
+          enum: [TRADING, SUBSCRIPTION, SECURITY, SYSTEM, MARKETING]
+        enabled:
+          type: boolean
+    PreferenceUpdate:
+      type: object
+      required: [category, enabled]
+      properties:
+        category:
+          type: string
+          enum: [TRADING, SUBSCRIPTION, SECURITY, SYSTEM, MARKETING]
+        enabled:
+          type: boolean
+    NotificationHistoryItem:
+      type: object
+      required: [eventId, category, priority, title, status, createdAt]
+      properties:
+        eventId:
+          type: string
+        category:
+          type: string
+        priority:
+          type: string
+          enum: [CRITICAL, HIGH, NORMAL, LOW]
+        title:
+          type: string
+        message:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, SENT, DELIVERED, FAILED, DROPPED]
+        referenceId:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
