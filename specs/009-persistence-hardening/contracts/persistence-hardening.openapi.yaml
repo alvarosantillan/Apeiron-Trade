@@ -1,0 +1,231 @@
+openapi: 3.0.3
+info:
+  title: TRDIA Persistence Hardening Continuity API
+  version: 1.0.0
+  description: >-
+    Contract baseline for Sprint 009 persistence migration, preserving current API behavior
+    while standardizing controlled DB failure responses.
+servers:
+  - url: https://api.trdia.local
+paths:
+  /v1/auth/login:
+    post:
+      summary: Authenticate user with persisted credentials
+      operationId: loginUser
+      tags: [Auth]
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenPair'
+        '401':
+          description: Invalid credentials
+        '503':
+          description: Persistence unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlledError'
+  /v1/auth/refresh:
+    post:
+      summary: Refresh access token using persisted session
+      operationId: refreshToken
+      tags: [Auth]
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthTokenPair'
+        '401':
+          description: Session revoked or expired
+        '503':
+          description: Persistence unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlledError'
+  /v1/trading/executions:
+    post:
+      summary: Create or resume idempotent trading execution
+      operationId: createTradingExecution
+      tags: [TradingExecution]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExecutionRequest'
+      responses:
+        '200':
+          description: Execution accepted or idempotent replay returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradingExecutionResponse'
+        '400':
+          description: Validation error
+        '409':
+          description: Business conflict
+        '503':
+          description: Persistence unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlledError'
+  /v1/notifications/events:
+    post:
+      summary: Register notification event idempotently
+      operationId: registerNotificationEvent
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationEventRequest'
+      responses:
+        '200':
+          description: Event persisted or idempotent replay returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationDeliveryResponse'
+        '400':
+          description: Validation error
+        '503':
+          description: Persistence unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlledError'
+  /v1/ai-agent/config:
+    get:
+      summary: Read active AI agent config for authenticated user
+      operationId: getAiAgentConfig
+      tags: [AIAgent]
+      responses:
+        '200':
+          description: Active config returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiAgentConfig'
+        '404':
+          description: No active config
+        '503':
+          description: Persistence unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlledError'
+components:
+  schemas:
+    AuthTokenPair:
+      type: object
+      required: [accessToken, refreshToken, tokenType]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        tokenType:
+          type: string
+          example: bearer
+    CreateExecutionRequest:
+      type: object
+      required: [requestId, symbol, side, quantity]
+      properties:
+        requestId:
+          type: string
+        symbol:
+          type: string
+        side:
+          type: string
+          enum: [BUY, SELL]
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+        isSimulation:
+          type: boolean
+          default: false
+    TradingExecutionResponse:
+      type: object
+      required: [id, requestId, status, executionType, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        requestId:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, EXECUTED, FAILED, CANCELLED, BLOCKED]
+        executionType:
+          type: string
+          enum: [BUY, SELL]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    NotificationEventRequest:
+      type: object
+      required: [eventId, category, priority]
+      properties:
+        eventId:
+          type: string
+        category:
+          type: string
+        priority:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        payload:
+          type: object
+          additionalProperties: true
+    NotificationDeliveryResponse:
+      type: object
+      required: [id, eventId, status, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        eventId:
+          type: string
+        status:
+          type: string
+          enum: [PENDING, SENT, FAILED]
+        createdAt:
+          type: string
+          format: date-time
+    AiAgentConfig:
+      type: object
+      required: [provider, strategyId, mode, isActive, updatedAt]
+      properties:
+        provider:
+          type: string
+        strategyId:
+          type: string
+        mode:
+          type: string
+          enum: [SIMULATION, LIVE]
+        isActive:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    ControlledError:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code:
+          type: string
+          enum: [DB_UNAVAILABLE, DB_TRANSACTION_ERROR]
+        message:
+          type: string
+        traceId:
+          type: string
