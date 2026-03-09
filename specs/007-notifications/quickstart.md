@@ -59,7 +59,16 @@ Expected:
 ## Test Commands (Reference)
 
 ```bash
-pytest backend/tests/unit -k notifications
-pytest backend/tests/integration -k notifications
-pytest backend/tests/contract -k notifications
+python -m pytest tests/contract/notifications tests/integration/notifications -q
 ```
+
+## Validation Evidence
+
+- Command: `python -m pytest tests/contract/notifications tests/integration/notifications -q`
+- Result: `7 passed, 1 warning`
+- Scenario mapping:
+	- Scenario 1: `test_upsert_and_list_device_tokens`
+	- Scenario 2: `test_trading_event_push_delivery`
+	- Scenario 3: `test_marketing_disabled_but_critical_override_allows_delivery`
+	- Scenario 4: `test_same_event_id_is_deduplicated_per_device`
+	- Scenario 5: `test_transient_failure_ends_in_failed_after_retries`, `test_invalid_token_is_dropped_and_deactivated`

@@ -6,6 +6,10 @@ from services.auth.login_protection import login_protection
 from services.auth.user_store import store
 from services.ai_agent.config_store import ai_agent_config_store
 from services.ai_agent.decision_repository import ai_decision_repository
+from services.notifications.dedup_service import notification_dedup_service
+from services.notifications.history_store import notification_history_store
+from services.notifications.preference_store import notification_preference_store
+from services.notifications.token_service import notification_token_service
 from services.payments.event_idempotency import idempotency_store
 from services.binance.credential_service import credential_store
 from services.execution.execution_repository import execution_repository
@@ -28,6 +32,10 @@ def reset_in_memory_store() -> None:
     login_protection._failed_by_email.clear()
     ai_agent_config_store._by_user.clear()
     ai_decision_repository._by_user.clear()
+    notification_token_service._by_user.clear()
+    notification_preference_store._by_user.clear()
+    notification_history_store._by_user.clear()
+    notification_dedup_service._seen.clear()
     idempotency_store._seen_event_ids.clear()
     subscription_store._status_by_user.clear()
     credential_store._by_user.clear()
