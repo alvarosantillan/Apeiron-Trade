@@ -5,6 +5,10 @@ import pytest
 from fastapi.testclient import TestClient
 
 from main import app
+from tests.fixtures.runtime_warnings import (
+    assert_no_blocking_warnings,
+    capture_runtime_warnings,
+)
 from services.auth.login_protection import login_protection
 from services.auth.user_store import store
 from services.ai_agent.config_store import ai_agent_config_store
@@ -36,7 +40,27 @@ def _configure_test_database(tmp_path_factory: pytest.TempPathFactory) -> None:
 
 @pytest.fixture
 def test_client() -> TestClient:
-    return TestClient(app)
+    with TestClient(app) as client:
+        yield client
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers",
+        "runtime_warning_policy: enforce runtime warning policy assertions for marked tests",
+    )
+
+
+@pytest.fixture(autouse=True)
+def _runtime_warning_policy_guard(request: pytest.FixtureRequest) -> None:
+    if "runtime_warning_policy" not in request.keywords:
+        yield
+        return
+
+    with capture_runtime_warnings() as captured:
+        yield
+
+    assert_no_blocking_warnings(captured)
 
 
 @pytest.fixture(autouse=True)

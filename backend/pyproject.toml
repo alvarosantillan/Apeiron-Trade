@@ -19,12 +19,17 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8.2.0",
-  "httpx>=0.27.0"
+  "httpx>=0.27.0,<0.29.0"
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 markers = [
-  "smoke: persistence baseline smoke tests"
+  "smoke: persistence baseline smoke tests",
+  "runtime: runtime cleanup and warning surface tests",
+  "runtime_warning_policy: enforce runtime warning policy checks"
+]
+filterwarnings = [
+  "default"
 ]

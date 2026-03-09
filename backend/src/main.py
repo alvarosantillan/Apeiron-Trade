@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+import logging
+
 from fastapi import FastAPI
 
 from api.auth.router import router as auth_router
@@ -12,6 +15,9 @@ from services.persistence.database import initialize_database, reset_database_en
 from services.validation.db_settings import load_db_settings
 
 
+logger = logging.getLogger(__name__)
+
+
 def _bootstrap_persistence() -> None:
 	settings = load_db_settings()
 	# Keep a single source of truth for database URL used by SQLAlchemy.
@@ -21,13 +27,19 @@ def _bootstrap_persistence() -> None:
 	reset_database_engine()
 	initialize_database()
 
-app = FastAPI(title="TRDIA Backend", version="0.1.0")
-install_persistence_error_handler(app)
 
-
-@app.on_event("startup")
-def startup_bootstrap() -> None:
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+	logger.info("startup initialized")
 	_bootstrap_persistence()
+	try:
+		yield
+	finally:
+		logger.info("shutdown completed")
+
+
+app = FastAPI(title="TRDIA Backend", version="0.1.0", lifespan=lifespan)
+install_persistence_error_handler(app)
 
 
 app.include_router(auth_router)
