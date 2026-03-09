@@ -28,4 +28,13 @@ def generate_decision_for_user(user_id: str, symbol: str, timeframe: str) -> dic
     if config["mode"] == "AUTOMATIC" and raw["status"] == "PENDING_APPROVAL":
         raw["status"] = "EXECUTED"
 
+    recent_equivalent = ai_decision_repository.find_recent_equivalent(
+        user_id,
+        symbol=raw["symbol"],
+        timeframe=raw["timeframe"],
+        action=raw["action"],
+    )
+    if recent_equivalent:
+        return recent_equivalent
+
     return ai_decision_repository.add(user_id, raw)
