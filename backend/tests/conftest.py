@@ -6,6 +6,7 @@ from services.auth.login_protection import login_protection
 from services.auth.user_store import store
 from services.ai_agent.config_store import ai_agent_config_store
 from services.ai_agent.decision_repository import ai_decision_repository
+from services.audit.trade_detail_audit import trade_detail_audit_store
 from services.notifications.dedup_service import notification_dedup_service
 from services.notifications.history_store import notification_history_store
 from services.notifications.preference_store import notification_preference_store
@@ -32,6 +33,7 @@ def reset_in_memory_store() -> None:
     login_protection._failed_by_email.clear()
     ai_agent_config_store._by_user.clear()
     ai_decision_repository._by_user.clear()
+    trade_detail_audit_store._events.clear()
     notification_token_service._by_user.clear()
     notification_preference_store._by_user.clear()
     notification_history_store._by_user.clear()

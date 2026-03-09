@@ -29,5 +29,9 @@ class PlanLimitValidator:
         key = (user_id, self._week_start_utc())
         self._weekly_usage[key] = self._weekly_usage.get(key, 0) + 1
 
+    def get_used_operations(self, user_id: str) -> int:
+        key = (user_id, self._week_start_utc())
+        return self._weekly_usage.get(key, 0)
+
 
 plan_limit_validator = PlanLimitValidator()

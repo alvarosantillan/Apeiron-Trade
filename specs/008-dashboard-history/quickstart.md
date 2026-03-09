@@ -66,7 +66,17 @@ Expected:
 ## Test Commands (Reference)
 
 ```bash
-pytest backend/tests/unit -k dashboard_history
-pytest backend/tests/integration -k dashboard_history
-pytest backend/tests/contract -k dashboard_history
+python -m pytest tests/contract/dashboard_history tests/integration/dashboard_history -q
 ```
+
+## Validation Evidence
+
+- Command: `python -m pytest tests/contract/dashboard_history tests/integration/dashboard_history -q`
+- Result: `8 passed, 1 warning`
+- Scenario mapping:
+	- Scenario 1: `test_dashboard_summary_contract`, `test_dashboard_load_for_active_user`
+	- Scenario 2: `test_history_combined_filters_and_cursor_pagination` (with `isSimulation=true`)
+	- Scenario 3: `test_history_combined_filters_and_cursor_pagination`, `test_history_contract_returns_items_and_next_cursor`
+	- Scenario 4: `test_trade_detail_contract`, `test_trade_detail_access_writes_audit_event`
+	- Scenario 5: `test_kpi_endpoint_contract`, `test_kpi_invalid_window_returns_400`
+	- Scenario 6: `test_dashboard_summary_contract` (default empty user state)

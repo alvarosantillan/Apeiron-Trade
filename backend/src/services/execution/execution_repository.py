@@ -33,6 +33,9 @@ class ExecutionRepository:
             items = [item for item in items if item["executionType"] == execution_type]
         return items[:limit]
 
+    def get_all_executions(self, user_id: str) -> list[dict]:
+        return self._by_user.get(user_id, [])
+
     def list(
         self,
         is_simulation: bool | None = None,

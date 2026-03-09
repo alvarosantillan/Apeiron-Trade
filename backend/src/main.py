@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from api.auth.router import router as auth_router
 from api.ai_agent.router import router as ai_agent_router
+from api.analytics.router import router as analytics_router
 from api.notifications.router import router as notifications_router
 from api.subscriptions.router import router as subscriptions_router
 from api.trading.router import router as trading_router
@@ -14,3 +15,4 @@ app.include_router(subscriptions_router)
 app.include_router(trading_router)
 app.include_router(ai_agent_router)
 app.include_router(notifications_router)
+app.include_router(analytics_router)
