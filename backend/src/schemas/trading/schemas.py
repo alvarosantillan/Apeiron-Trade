@@ -33,3 +33,20 @@ class TradeExecutionResponse(BaseModel):
     side: str
     quantity: float
     message: str
+
+
+class TradeHistoryItem(BaseModel):
+    request_id: str
+    status: str
+    execution_type: str
+    symbol: str
+    side: str
+    quantity: float
+    message: str
+
+
+class TradeHistoryResponse(BaseModel):
+    items: list[TradeHistoryItem]
+    page: int
+    page_size: int
+    total: int

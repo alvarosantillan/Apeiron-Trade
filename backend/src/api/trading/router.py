@@ -1,14 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from api.middleware.auth_middleware import get_current_user
 from schemas.trading.schemas import (
     BinanceCredentialsRequest,
     BinanceCredentialsStatusResponse,
+    TradeHistoryResponse,
     TradeExecutionRequest,
     TradeExecutionResponse,
 )
 from services.binance.credential_service import credential_store
 from services.execution.execute_order_service import ExecutionError, execute_order
+from services.execution.execution_repository import execution_repository
 from services.execution.idempotency_service import idempotency_service
 from services.execution.paper_execution_service import PaperExecutionError, execute_paper_order
 from services.subscriptions.store import subscription_store
@@ -58,3 +60,20 @@ def execute_trade(payload: TradeExecutionRequest, user: dict = Depends(get_curre
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="invalid execution payload")
 
     return TradeExecutionResponse(**result)
+
+
+@router.get("/history", response_model=TradeHistoryResponse)
+def get_trade_history(
+    user: dict = Depends(get_current_user),
+    is_simulation: bool | None = None,
+    status_filter: str | None = Query(default=None, alias="status"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> TradeHistoryResponse:
+    items, total = execution_repository.list(
+        is_simulation=is_simulation,
+        status=status_filter,
+        page=page,
+        page_size=page_size,
+    )
+    return TradeHistoryResponse(items=items, page=page, page_size=page_size, total=total)

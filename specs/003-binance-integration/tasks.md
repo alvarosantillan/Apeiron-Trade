@@ -59,4 +59,4 @@
 ## Phase 6: Polish
 
 - [x] T022 Run trading integration test suite and baseline report in `docs/qa/binance-integration.md`
-- [ ] T023 Validate quickstart scenarios in `specs/003-binance-integration/quickstart.md`
+- [x] T023 Validate quickstart scenarios in `specs/003-binance-integration/quickstart.md`
