@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth.router import router as auth_router
 from api.ai_agent.router import router as ai_agent_router
@@ -18,11 +20,25 @@ from services.validation.db_settings import load_db_settings
 logger = logging.getLogger(__name__)
 
 
+def _allowed_origins() -> list[str]:
+	origins_env = os.getenv("CORS_ALLOW_ORIGINS", "")
+	if origins_env.strip():
+		return [origin.strip() for origin in origins_env.split(",") if origin.strip()]
+
+	# Defaults for local container-first workflow.
+	return [
+		"http://localhost:5111",
+		"http://127.0.0.1:5111",
+		"http://localhost:5173",
+		"http://127.0.0.1:5173",
+		"http://localhost:3111",
+		"http://127.0.0.1:3111",
+	]
+
+
 def _bootstrap_persistence() -> None:
 	settings = load_db_settings()
 	# Keep a single source of truth for database URL used by SQLAlchemy.
-	import os
-
 	os.environ["DATABASE_URL"] = settings.database_url
 	reset_database_engine()
 	initialize_database()
@@ -39,6 +55,13 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="TRDIA Backend", version="0.1.0", lifespan=lifespan)
+app.add_middleware(
+	CORSMiddleware,
+	allow_origins=_allowed_origins(),
+	allow_credentials=True,
+	allow_methods=["*"],
+	allow_headers=["*"],
+)
 install_persistence_error_handler(app)
 
 

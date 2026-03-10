@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import { login } from "../features/auth/auth.api";
 import { useSession } from "../features/auth/session-store";
@@ -7,7 +7,7 @@ import { HttpClientError } from "../services/http/client";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login: setSession } = useSession();
+  const { session, login: setSession } = useSession();
 
   const [email, setEmail] = useState("demo@example.com");
   const [password, setPassword] = useState("Password123");
@@ -31,6 +31,10 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (session.isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

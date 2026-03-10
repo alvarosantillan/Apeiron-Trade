@@ -13,9 +13,8 @@ const queryClient = new QueryClient();
 function AppProviders() {
   const { session, logout } = useSession();
 
-  useEffect(() => {
-    setTokenProvider(() => session.accessToken);
-  }, [session.accessToken]);
+  // Register token provider synchronously to avoid first-request auth races after login.
+  setTokenProvider(() => session.accessToken);
 
   useEffect(() => {
     onUnauthorized(() => logout());

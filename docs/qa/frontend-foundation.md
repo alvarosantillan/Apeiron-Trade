@@ -58,3 +58,11 @@
 
 - Current status: **Go for PR** (MVP baseline de Sprint 011 implementado y validado en unit/integration/build).
 - Residual risk: E2E browser execution en contenedor pendiente de aprovisionamiento de browser runtime.
+
+## Post-Merge Hotfix Notes
+
+- Context: login web quedaba en `/login` tras autenticacion valida y el seed de demo se ejecutaba contra un destino distinto al runtime de API.
+- Backend fix: habilitacion CORS para preflight en `POST /v1/auth/login` en `backend/src/main.py`.
+- Frontend fix: redireccion de usuario autenticado fuera de `/login` y eliminacion de carrera de token provider en `frontend/src/app/main.tsx` y `frontend/src/pages/LoginPage.tsx`.
+- Data fix: seeder alineado con `DBSettings` para usar la misma `DATABASE_URL` del runtime en `backend/scripts/seed_demo_data.py`.
+- Validation: `docker exec Apeiron-Trade bash -lc 'cd /app/frontend; npm run test:run -- --reporter=dot'` y `docker exec Apeiron-Trade bash -lc 'cd /app/frontend; npm run build'` en verde.
