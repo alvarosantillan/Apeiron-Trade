@@ -15,5 +15,6 @@ describe("Trading API flow", () => {
 
     expect(credentials.status).toBe("verified");
     expect(result.status).toBe("executed");
+    expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining("/v1/trading/execute"), expect.objectContaining({ method: "POST" }));
   });
 });

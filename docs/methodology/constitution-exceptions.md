@@ -35,3 +35,25 @@ Current constitution/frontend stack reference indicates React Native direction, 
 - **Approval Status**: Approved
 - **Approval Date**: 2026-03-09
 - **Notes**: Proceed with web MVP for validation phase.
+
+---
+
+## Sprint 012 - Cryptocurrency UI Kit (Web Continuity)
+
+**Date**: 2026-03-10
+**Feature**: `012-cryptocurrency-ui-kit`
+**Scope**: Visual integration of UI Kit for authenticated layout, Dashboard, and Trading.
+
+## Revalidation Result
+
+- **Type**: Stack continuity revalidation
+- **Decision**: Keep approved web frontend direction for Sprint 012 under closed visual scope
+- **Constraint**: No backend contract changes and no endpoint expansion
+- **Constraint**: Preserve auth and private-route behavior from Sprint 011 baseline
+
+## Approval Record
+
+- **Approver**: Project Owner
+- **Approval Status**: Approved
+- **Approval Date**: 2026-03-10
+- **Notes**: Governance gate cleared for Sprint 012 implementation using existing web stack.

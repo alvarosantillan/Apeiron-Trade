@@ -1,6 +1,8 @@
 import { FormEvent, useState } from "react";
 
-import SubmitGuardButton from "../app/components/SubmitGuardButton";
+import StatePanel from "../app/components/StatePanel";
+import { getErrorMessage } from "../app/content/error-messages";
+import TradingFormPanel from "../features/trading/TradingFormPanel";
 import { useTradingViewModel } from "../features/trading/trading.viewmodel";
 
 export default function TradingPage() {
@@ -22,21 +24,26 @@ export default function TradingPage() {
 
   return (
     <section>
-      <h1>Trading</h1>
-      <form onSubmit={onSave} style={{ marginBottom: 12 }}>
-        <input value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="API Key" />
-        <input value={secretKey} onChange={(e) => setSecretKey(e.target.value)} placeholder="Secret Key" />
-        <SubmitGuardButton busy={status === "loading"} idleLabel="Guardar Credenciales" />
-      </form>
+      <TradingFormPanel
+        status={status}
+        apiKey={apiKey}
+        secretKey={secretKey}
+        symbol={symbol}
+        quantity={quantity}
+        onApiKeyChange={setApiKey}
+        onSecretKeyChange={setSecretKey}
+        onSymbolChange={setSymbol}
+        onQuantityChange={setQuantity}
+        onSave={onSave}
+        onTrade={onTrade}
+      />
 
-      <form onSubmit={onTrade}>
-        <input value={symbol} onChange={(e) => setSymbol(e.target.value)} placeholder="Symbol" />
-        <input type="number" value={quantity} onChange={(e) => setQuantity(Number(e.target.value))} />
-        <SubmitGuardButton busy={status === "loading"} idleLabel="Ejecutar Orden" />
-      </form>
+      {status === "submitting" ? <StatePanel kind="loading" message="Procesando solicitud de trading" /> : null}
+      {status === "error" ? <StatePanel kind="error" message={getErrorMessage("TRADING_ERROR")} /> : null}
+      {status === "success" ? <StatePanel kind="success" message={message || getErrorMessage("TRADING_SUCCESS")} /> : null}
 
-      <p>Estado: {status}</p>
-      <p>{message}</p>
+      <p aria-live="polite">Estado: {status}</p>
+      {message ? <p>{message}</p> : null}
     </section>
   );
 }

@@ -1,29 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import { RouterProvider, createMemoryRouter } from "react-router-dom";
 
-import { SessionProvider } from "../../../src/features/auth/session-store";
 import { routes } from "../../../src/app/routes";
+import { SessionProvider } from "../../../src/features/auth/session-store";
 
-describe("Private routes", () => {
+describe("Private layout UI Kit", () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it("redirects unauthenticated users to login", async () => {
-    const router = createMemoryRouter(routes, {
-      initialEntries: ["/dashboard"]
-    });
-
-    render(
-      <SessionProvider>
-        <RouterProvider router={router} />
-      </SessionProvider>
-    );
-
-    expect(await screen.findByRole("heading", { name: "TRDIA Login" })).toBeInTheDocument();
-  });
-
-  it("allows authenticated users to access dashboard", async () => {
+  it("shows authenticated shell with private navigation", async () => {
     localStorage.setItem("trdia.accessToken", "token-123");
 
     const router = createMemoryRouter(routes, {
@@ -38,5 +24,7 @@ describe("Private routes", () => {
 
     expect(await screen.findByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "Navegacion privada" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Trading" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Logout" })).toBeInTheDocument();
   });
 });

@@ -9,6 +9,9 @@ export interface FrontendEvent {
   timestamp: string;
 }
 
+export type DashboardUiState = "loading" | "success" | "empty" | "error";
+export type TradingUiState = "idle" | "submitting" | "success" | "error";
+
 function redact(input: Record<string, unknown> | undefined): Record<string, unknown> | undefined {
   if (!input) return undefined;
   const sanitized: Record<string, unknown> = {};
@@ -35,4 +38,25 @@ export function logFrontendEvent(event: string, level: FrontendEventLevel, detai
   }
 
   return record;
+}
+
+export function emitPrivateLayoutRendered(pathname: string): FrontendEvent {
+  return logFrontendEvent("ui.layout.private.rendered", "info", { pathname });
+}
+
+export function emitAuthRedirectTriggered(reason: string, fromPath: string, toPath: string): FrontendEvent {
+  return logFrontendEvent("ui.auth.redirect.triggered", "warning", { reason, fromPath, toPath });
+}
+
+export function emitDashboardStateChanged(state: DashboardUiState): FrontendEvent {
+  return logFrontendEvent("ui.dashboard.state.changed", "info", { state });
+}
+
+export function emitTradingSubmitStarted(symbol: string): FrontendEvent {
+  return logFrontendEvent("ui.trading.submit.started", "info", { symbol });
+}
+
+export function emitTradingSubmitCompleted(status: Exclude<TradingUiState, "idle" | "submitting">, message: string): FrontendEvent {
+  const level: FrontendEventLevel = status === "error" ? "error" : "info";
+  return logFrontendEvent("ui.trading.submit.completed", level, { status, message });
 }

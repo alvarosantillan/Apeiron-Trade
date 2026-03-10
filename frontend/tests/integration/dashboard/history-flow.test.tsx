@@ -15,5 +15,6 @@ describe("Dashboard history flow", () => {
 
     expect(summary.balance).toBe(1000);
     expect(history.items).toHaveLength(0);
+    expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining("/v1/history/trades?limit=10"), expect.any(Object));
   });
 });

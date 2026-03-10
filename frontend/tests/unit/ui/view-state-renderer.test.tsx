@@ -10,6 +10,9 @@ describe("StatePanel", () => {
 
     rerender(<StatePanel kind="empty" message="No data" />);
     expect(screen.getByText("No data")).toBeInTheDocument();
+
+    rerender(<StatePanel kind="success" message="Dashboard listo" />);
+    expect(screen.getByText("Dashboard listo")).toBeInTheDocument();
   });
 
   it("renders error state with retry", async () => {

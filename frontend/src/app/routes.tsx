@@ -16,11 +16,11 @@ export const routes: RouteObject[] = [
     path: "/",
     element: <PrivateLayout />,
     children: [
+      { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: "dashboard", element: <DashboardPage /> },
       { path: "trading", element: <TradingPage /> },
       { path: "notifications", element: <NotificationsPage /> },
-      { path: "ai-agent", element: <AIAgentPage /> },
-      { index: true, element: <Navigate to="/dashboard" replace /> }
+      { path: "ai-agent", element: <AIAgentPage /> }
     ]
   },
   {
